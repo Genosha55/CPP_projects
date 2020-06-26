@@ -1,0 +1,2 @@
+main.cpp:40:29: warning: catching polymorphic type 'class std::logic_error' by value [-Wcatch-value=]
+   40 |     catch (std::logic_error e)
