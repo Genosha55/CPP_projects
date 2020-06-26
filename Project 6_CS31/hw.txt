@@ -1,0 +1,362 @@
+
+Note: I marked comment on the revised version of code using "//--" syntax for labeling as opposed to original commenting.
+
+Problem 1: This problem involves errors related to the use of pointers.
+
+a.  This program is supposed to write      1 10 100 1000      but it doesn't.  Find all of the bugs and show a fixed version of the program:
+   
+Fixed:
+
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int arr[4] = { 0, 1, 2, 3 };
+    int* ptr = arr;
+
+    *ptr = arr[1];
+    *(ptr + 1) = arr[0]*10;
+    ptr +=2;
+    ptr[0] = arr[1]*10;
+    ptr[1] = 1000;
+
+    ptr -= 2;				//--bring pointer back to pointing to arr[0]
+
+    for (int j=0;j!=4;j++)		//--use a for loop instead of while for not surpass the array boundary when doing ++ in the loop
+    {
+        cout<<" "<<*(ptr+j);		//--output the value of array (or pointer) using the dereferencing of a moving address (moving pointer)
+    }
+    
+    cout <<endl;
+    return (0);
+}
+
+
+b.  The findFirstZero function is supposed to find the first element in an array whose value is zero, and sets the parameter  p to point to that element, so the caller can know the location of that element holding the value zero.  Explain why this function won't do that, and show how to fix it.  Your fix must be to the function only; you must not change the  main routine below in any way.  As a result of your fixing the function, the main routine below needs to work correctly.
+
+Fixed version: 
+
+    #include <iostream>
+    using namespace std;
+
+    void findFirstZero(int arr[], int n, int* &p)		//--carrying back the pointer by pass-by-reference used in function, otherwise the pointer ptr in main will still point at an address of null
+    {
+        p = nullptr;    /// default value if there isn't a 0 in the array at all
+        for (int k = n - 1; k >= 0; k--)
+        {
+            if (arr[k] == 0)      // found an element whose value is 0
+            // since we want the first zero value, as we keeping looping, we'll get to the 0 that is behind us in the array...
+            { 
+                 p = arr + k;     // change the value of p
+            } 
+        }
+    }                 
+
+    int main()
+    {
+        int nums[6] = { 10, 20, 0, 40, 30, 50 };
+        int* ptr = nullptr;
+
+ 
+        findFirstZero(nums, 6, ptr);
+        if (ptr == nullptr)
+        {
+            cout << "The array doesn't have any zeros inside it." << endl;
+        }
+        else
+        {
+            cout << "The first zero is at address " << ptr <<  endl;
+            cout << "It's at index " << ptr - nums << endl;
+            cout << "The item's value is " << *ptr << " which is zero!  I found it." << endl;
+        }
+        return( 0 );
+    }
+
+c.  The smallest function is correct, but the main function has a problem.  Explain why it may not work, and show a way to fix it.  Your fix must be to the main function only; you must not change the smallest function in any way.
+
+Fixed version:
+
+    #include <iostream>
+    using namespace std;
+
+
+    void smallest(int value1, int value2, int * resultPtr)
+    {
+        if( value1 < value2 )
+        {
+               *resultPtr = value1;
+        }
+        else
+        {
+               *resultPtr = value2;
+        }
+    }
+
+    int main()
+    {
+	int a = 15;		//--giving variable 15,20 with fixed addresses of identifier a and b 
+	int b = 20;
+
+	int* p;			
+	p = &a;			//--use pointer p to point at one of the variable (a) 	
+
+        smallest(a, b, p);	//--by passing over the identifier and pointer, we copied and makes a new identifier resultPtr in the function and changing the value of the pointer pointed to as function operates
+        cout << "The smallest value is " << *p << endl;
+        return( 0 );
+    }
+
+d.  The match function is supposed to return true if and only if its two C-string arguments have exactly same text.  Explain what the problems with the implementation of the function are, and show a way to fix them.
+
+revised version:
+
+
+    #include<iostream>			//--adding directives
+    using namespace std;
+
+    // return true if two C strings are equal 
+    bool match(const char str1[], const char str2[])
+    {
+        bool result = true;
+        while (*str1 != '\0'  &&  *str2 != '\0')  // zero bytes at ends //--dereference the pointers str1 and str2 as reading the end of the C-string '\0' instead of 0
+        {
+            if (*str1 != *str2)  // compare corresponding characters  //--again, dereference the pointer for value comparison
+            {
+                result = false;
+                break;
+            }
+            str1++;            // advance to the next character
+            str2++;
+        }
+        if (result) 
+        {
+            result = (*str1 == *str2);    // both ended at same time?  //--again, dereference the pointer for value comparison
+        }
+        return( result );
+    }
+
+
+    int main()
+    {
+        char a[10] = "pointy";
+        char b[10] = "pointless";
+
+
+        if (match(a,b))
+        {
+            cout << "They're the same!" << endl;
+        }
+    }
+
+e.  This program is supposed to write      1 1 2 3 5 8 13 21        but it probably does not.  What is the program doing that is incorrect?  (We're not asking you explain why the incorrect action leads to the particular  outcome it does, and we're not asking you to propose a fix to the problem.)
+
+    #include <iostream>
+    using namespace std;
+
+    int fibonacci( int n )
+    { 
+        int tmp;
+        int a = 1;
+        int b = 1;        
+
+        for (int i = 0; i < n-2; i ++) 
+        {
+             tmp = a+b;
+            a = b;
+             b = tmp;
+        }
+        return b;
+   }
+
+   int* computeFibonacciSequence(int& n)
+   {
+        int arr[8];
+        n = 8;
+        for (int k = 0; k < n; k++)
+        {
+            arr[k] = fibonacci( k+1 );
+        }
+        return arr;
+    }
+
+
+    int main()
+    {
+        int m;
+        int* ptr = computeFibonacciSequence(m);
+        for (int i = 0; i < m; i++)
+        {
+            cout << ptr[i] << ' ';
+        }
+        return( 0 );
+    }
+
+Incorrectness:
+The program is tring to print out from 1,1 and add-up previous 2 numbers for the next number till number n. In 
+the function computeFi.., it wanted to return the address of the arr[0] as a pointer arr back to main when this 
+function gets called. This is illegal as one can not return an array. It's possible to fix this by passing back 
+a pointer instead, and we can have a dynamic array with the new operator.
+
+Problem 2:  What does the following program print and why?  Comment each line of code to explain what it is doing.
+
+    #include <iostream>				//--include directive 
+    using namespace std; 			//--adding directive
+
+    int main( )
+    {
+        int x[ 5 ] = { 1, 2, 3, 4, 5 };		//--creating an array x with integer 1-5
+        int * p = x;				//--creating a int pointer, pointing to x[0]
+        int i;					
+
+        for (i = 0; i < 2; i++)			//--within a for loop, int i from 0 to 1
+        {
+             int temp = *(p + i);		//--use a int holder(temp) to hold the value at x[0] and x[1] with each loop, respectively
+             *(p + i) = *(p + 4 - i);		//--giving the value at x[4] to x[0] at i=0; giving the value at x[3] to x[1] at i=1
+             *(p +4 - i) = temp;		//--giving value of x[0],x[1] to x[5],x[4], respectively. Essentially, within loop,
+        }					//--the value in the x-array got switched from top to bottom.
+
+        for (i = 0; i < 5; i++)			//--within this for loop
+        {
+             cout << x[i] << " ";		//--print out the values of the new array, which is top-bottom switched array of the 
+        }					//--original one.
+       cout << endl;
+       return( 0 );
+   }
+
+Answer: the program would print on the screen:
+5 4 3 2 1 
+
+
+Problem 3:  What does the following program print and why?  Comment each line of code to explain what it is doing.  Explain why the second * is required on line A below.
+    #include <iostream>
+    using namespace std;
+
+    int main()
+    {
+        double x = 5.999;			
+        double *y, *z;  // Line A - why is the second * required? 	//--declare TWO pointers that points to double variables, the second * is required as it meant to 
+									//--be a double pointer instead of being a double variable.
+        y = &x;								//--allocate(pointing) the pointer y to the address of the double variable x
+        z = y;								//--assign the value of y(that is the address pointer y points to) to pointer z, thus now pointer y and z are 
+									//--both pointing to double vairable x
+        cout << x << " " << *(&x) << " " << *y << *z << endl;		//--print out in the order of: value of variable x, dereference the address at x that gives value of x, dereference y and z
+
+        return( 0 );
+    } 
+
+Answer: the program would print on the screen:
+5.999 5.999 5.9995.999
+ 
+
+Problem 4:  What does the following program print and why?  Comment each line of code to explain what it is doing.  
+
+    #include <iostream>
+    using namespace std; 
+
+    int main()
+    {
+        int track[ ] = { 10, 20, 30, 40 };		//--declare an int array with value {10,20,30,40}
+        int * ptr;					//--declare an int pointer
+
+        ptr = track;					//--assign the address of track[0] to the pointer ptr, that is ptr is now pointing to track[0]
+        track[1] += 30;					//--assign a value of (20+30) to track[1]
+        cout << * ptr << " ";				//--print out dereferenced pointer ptr, which is the value of track[0], 10
+        *ptr -= 10;					//--assign a value of (10-10) to track[0] (get pointed by ptr now)
+        ptr++;						//--move the pointer ptr to pointing at track[1]
+        cout << * ptr << " ";				//--dereference the pointer ptr, giving value at track[1], 50
+        ptr += 2;					//--moving pointer to pointing at track[3]
+        cout << * ptr << " ";				//--print out dereferenced pointer ptr, which is the value of track[3], 40
+        cout << track[ 0 ] << endl;			//--print out the value of track[0], 0
+
+        return( 0 );
+    } 
+
+Answer: the program would print on the screen:
+10 50 40 0
+
+
+
+Problem 5:  Rewrite this program and remove the variable declared at line A below.  Make your revised program generate the exact same output as the original without using the variable declared at line A.
+
+    #include <iostream>
+    using namespace std; 
+
+    int main()
+    {
+        int num[ 5 ];
+        int *ptr;       // Line A
+        // rewrite all this code without this declared variable above
+        // make your revised code do the same thing as this original logic
+        ptr = num;
+        *ptr = 100;
+        ptr++;
+        *ptr = 90;
+        ptr = &num[ 2 ];
+        *ptr = 80;
+        ptr = num + 3;
+        *ptr = 70;
+        ptr = num;
+        *(ptr + 4) = 60;
+        for (int i = 0; i < 5; i++)
+            cout << num[ i ] << " ";
+        cout << endl;
+
+        return( 0 );
+    } 
+
+revised version:
+
+	#include <iostream>
+	using namespace std;
+
+	int main()
+	{
+    	    int num[5];
+    	    int j = 0;				//--declare an int j=0 as variable used to "walk" the array (access array value elementally)
+    	    *(num) = 100;			//--num can be treated as a pointer itself, as to given the first value at num[0] to be 100
+    	    j++;				//--increase j with one as the original code to increase ptr with one
+    	    *(&num[j]) = 90;			//--assign value 90 to box at num[j] (original code with pointer pointing at this box)
+    	    j = 2;				//--give value 2 to j for accessing num[2]
+    	    *(&num[j]) = 80;			//--assign value 80 to num[j] as original code directly pointing ptr to address of num[2] and assign the value
+    	    j = 3;				//--assign value 3 to j, access "box" by using num + 3(j) and assign value 70
+    	    *(num + j) = 70;
+    	    j = 0;				//--assign j with value 0 to mimic the original code for pointing ptr back to num(or say num[0])
+    	    *(num + j + 4) = 60;		//--assign value 60 directly to "box" num[4] (or address at num+j+4) with 60    
+
+    	    for (int i = 0; i < 5; i++)
+        	cout << num[i] << " ";
+    	    cout << endl;
+
+    	    return(0);
+	}
+
+
+Problem 6:   Write a function named deleteDigits that accepts one character  pointer as a parameter and returns no value. The parameter must be a C-string.  This function must remove all of the digit character letters from the string.  The resulting string must be a valid C-string.  Your function must declare no more than one local variable in addition to the parameter; that additional variable must be of a pointer type.  Your function must not use any square brackets and must not use the strlen or strcpy library functions.
+
+Added function deleteDigits:
+    #include <iostream>
+    using namespace std;
+
+
+    void deleteDigits(char* New_CString)
+    {
+    	for (char* pos = New_CString; *pos != '\0'; pos++)			//--a pointer pos to walk through the C_String, which is a duplicate of the passed-by char pointer (New_CString)
+    	{
+        	if (*pos != '0' && *pos != '1' && *pos != '2' && *pos != '3' && *pos != '4' && *pos != '5' && *pos != '6' && *pos != '7' && *pos != '8' && *pos != '9')		//--if pointer does not see a number (sees "valid" char) 
+        	{
+            		*New_CString = *pos;					//--the original char pointer (New_CString) with take up the content pos is pointing (if valid) 
+            		New_CString++;						//--the original char pointer (New_CString) will make one-step forward, as if statement is not true(meaning pos encountered a number), then the New_CString pointer won't update its value while pos keeps moving one step forward over the number, and this repeats over the whole string
+        	}
+    	}
+    	*New_CString = '\0';     						//--adding the '\0' to the end of the string to make it a valid C_String as pointer New_CString already pointing at the one step after the completed updated string
+    }
+
+
+==========(below is the original main)
+
+    int main()
+    {
+        char msg[100] = "Happy 2019!";
+        deleteDigits(msg);
+        cout << msg << endl;        // prints:   Happy !
+    }

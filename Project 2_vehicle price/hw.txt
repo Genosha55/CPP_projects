@@ -1,0 +1,70 @@
+Project 2 Accompanying Homework
+
+1. Output produced would be on screen as shown: 
+endlendl
+endline
+where, after the first line, there would be a ‘newline’ to switch to the 2nd line. 
+2. This program produces a 45 degree tilted line of “#” mark, with number of len-1 space from 1st line to 0 space at the lenth line.
+3. Modified code shown as follows:
+
+	#include <iostream>
+	using namespace std;
+
+	int main()
+	{
+	    int len;
+
+	    cout << "Enter a number: ";
+	    cin >> len;
+
+	    for (int i = 0; i < len; i++)
+	    {
+		    int j(i);    
+		    while (j < len)
+		    {
+		        cout << " ";
+			j++;	
+		    }
+		    cout << "#" << endl;
+	    }
+	}
+
+
+4. Modified code shown as follows:
+
+	#include <iostream>
+	using namespace std;
+
+	int main()
+	{
+	    int len;
+
+	    cout << "Enter a number: ";
+	    cin >> len;
+
+	    for (int i = 0; i < len; i++)
+	    {
+		    int j(i);    
+		    do
+		    {
+		        cout << " ";
+			j++;	
+		    }while (j < len);
+		    cout << "#" << endl;
+	    }
+	}
+5.	switch(weekday)
+	{
+		case 1:
+		cout << "rainy days and mondays get me down";
+		break;
+		case 2:
+		cout << "ruby tuesday";
+		break;
+		case 6:
+		case 7:
+		cout << "wonderful weekend";
+		break;
+		default:
+		cout << "regular day";
+	}
